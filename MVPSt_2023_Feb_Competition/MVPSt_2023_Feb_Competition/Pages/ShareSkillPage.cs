@@ -1,25 +1,10 @@
 ﻿using MVPSt_2023_Feb_Competition.Utilities;
-using NUnit.Framework.Constraints;
 using OpenQA.Selenium;
-//using OpenQA.Selenium.DevTools.V107.Browser;
-using OpenQA.Selenium.Support.Events;
 using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Linq;
-using System.Resources;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using static MVPSt_2023_Feb_Competition.Utilities.CommonDriver;
-//using AutoIt;
 using System.Diagnostics;
-using Microsoft.VisualBasic;
-using System.Diagnostics.Metrics;
-using System.Reflection.Metadata;
 using AventStack.ExtentReports;
+using MongoDB.Driver;
 
 namespace MVPSt_2023_Feb_Competition.Pages
 {
@@ -72,12 +57,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
         private IWebElement saveButton => driver.FindElement(By.XPath(saveButtonXP));
         private IWebElement cancelButton => driver.FindElement(By.XPath(cancelButtonXP));
 
-
-
-        // Get elements used to validate Actual against Expected data
-        //private string savedtitleTextboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[1]/div/div[2]/div/div[1]/input";
-        //private IWebElement savedCategory;
-
         // XPath of elements
         // error message boxes
         private string titleerrormessageXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[1]/div/div[2]/div/div[2]/div";
@@ -94,7 +73,7 @@ namespace MVPSt_2023_Feb_Competition.Pages
         private string onlinelocationRadioButtonXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[6]/div[2]/div/div[2]/div/input";
         private string startdatedayTextboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[7]/div[2]/div/div[1]/div[2]/input";
         private string enddatedayTextboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[7]/div[2]/div/div[1]/div[4]/input";
-        
+
         private string sunCheckboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[7]/div[2]/div/div[2]/div[1]/div/input";
         private string monCheckboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[7]/div[2]/div/div[3]/div[1]/div/input";
         private string tueCheckboxXP = "//*[@id=\"service-listing-section\"]/div[2]/div/form/div[7]/div[2]/div/div[4]/div[1]/div/input";
@@ -129,10 +108,11 @@ namespace MVPSt_2023_Feb_Competition.Pages
 
         // Miscellaneous
         static bool emptynullorwhitespace;
-        private int numberofDelimiters;
-        private int numberofSkills;
+        public static int numberofDelimiters;
+        public static int numberofSkills;
         public static DateTime calculatedDate;
         public static string stringDate;
+        public static string dayswithleadingsign;
         public static string ReformattedDate;
         public static string finalDate;
         public static string timeString;
@@ -141,23 +121,9 @@ namespace MVPSt_2023_Feb_Competition.Pages
         //public static string savedMessage;
         //public static string capturedMessage;
 
-    
-        public void CreateShareSkill(string ActionOfTest, string ValidInvalid, string ActionButton, string FollowupAction, string Title, string TitleError, string Description, string DescriptionError, string Category, string Subcategory, string Tags, string ServiceType, string Location, string StartDate, string EndDate, string StartEndDateError, string Sun, string SunStartTime, string SunEndTime, string Mon, string MonStartTime, string MonEndTime, string Tue, string TueStartTime, string TueEndTime, string Wed, string WedStartTime, string WedEndTime, string Thu, string ThuStartTime, string ThuEndTime, string Fri, string FriStartTime, string FriEndTime, string Sat, string SatStartTime, string SatEndTime, string SkillTrade, string SkillExchange, string Credit, string WorkSamples, string Active, string ExpectedPopupMessage, string ExpectedFollowupPopupMessage)
+        public void AddTitle(string ValidInvalid, string Title)
         {
-            test.Log(Status.Info, "Attempting to add or edit a listing on the Share Skill page");
-
-            // this method must be able to accept valid and invalid data: purpose of ValidInvalid parameter
-            // valid: add or edit !! in-progress !! (will presume removing 1 tag and adding a new tag [and Skill-exchange tag, if selected])
-            // invalid: clear data for invalid (negative) tests
-
-            // parse Tags and Skill-Exchange to separate items by delimiter (,) from the Excel file and 
-            // perform a loop to enter each item separately in their own textbox -- NO! send comma (,) at end of each tag to cause application to close current
-            // textbox and open new textbox
-            // ALSO parse each day's start and end time to remove leading datestamp (use space char as delimiter and ignore first index[begin with index 1])
-
             Wait.WaitForElementToExist("Name", "title", 7);
-            // wait for the Share Skill page to load by waiting for the Save button to be clickable
-            //Wait.WaitForElementToBeClickable("XPath", "savebuttonXP", 10);
 
             // if Title parameter is empty, null, or whitespace, then check ValidInvalid parm  - if 'Invalid', then clear Title textbox
             // if Title paramater is NOT empty, null, or whitespace, then find and enter the Title
@@ -176,7 +142,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 titleTextbox.Clear();
                 titleTextbox.SendKeys(Title);
             }
+        }
 
+        public void AddDescription(string ValidInvalid, string Description)
+        {
             // if Description parameter is empty, null, or whitespace, then check ValidInvalid parm - if 'Invalid', then clear Description textbox
             // if Description parameter is NOT empty, null, or whitespace, then find and enter the Description
             emptynullorwhitespace = string.IsNullOrWhiteSpace(Description);
@@ -193,7 +162,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 descriptionTextbox.Clear();
                 descriptionTextbox.SendKeys(Description);
             }
+        }
 
+        public void AddCategory(string Category)
+        {
             // if Category parameter is not empty, null, or whitespace, then select category from Category drop-down list
             emptynullorwhitespace = string.IsNullOrWhiteSpace(Category);
             if (emptynullorwhitespace != true)
@@ -202,7 +174,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 SelectElement selectacategory = new SelectElement(categoryDropDown);
                 selectacategory.SelectByText(Category);
             }
+        }
 
+        public void AddSubcategory(string Subcategory)
+        {
             // if Subcategory parameter is not empty, null, or whitespace, then select subcategory from Subcategory drop-down list
             emptynullorwhitespace = string.IsNullOrWhiteSpace(Subcategory);
             if (emptynullorwhitespace != true)
@@ -211,10 +186,14 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 SelectElement selectasubcategory = new SelectElement(subcategoryDropDown);
                 selectasubcategory.SelectByText(Subcategory);
             }
+        }
 
+        public void AddTags(string ActionOfTest, string Tags)
+        {
             // if Tags parameter is not empty, null, or whitespace, then check if this is an Edit test case -- if yes, then delete/remove 1st tag, then
             // look for delimiter character (,) in tags
-            // if found (numberofTags > 0), then will need to parse the tags and enter each tag into separate textbox
+            // if numberofDelimiters > 0, then will need to parse the tags and enter each tag into separate textbox;
+            // otherwise only 1 tag with no delimiter exists in Tags which needs to be entered into the Tags textbox
             emptynullorwhitespace = string.IsNullOrWhiteSpace(Tags);
             if (emptynullorwhitespace != true)
             {
@@ -240,8 +219,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                         {
                             driver.SwitchTo().ActiveElement().SendKeys(arrayofTags[arrayofTagsIndex] + ",");
                         }
-
-                        //Console.WriteLine("inside for loop, Tag = " + arrayofTags[arrayofTagsIndex]);
                     }
                 }
                 else
@@ -249,7 +226,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     tagsTextbox.SendKeys(Tags + ",");
                 }
             }
+        }
 
+        public void AddServiceType(string ServiceType)
+        {
             // find and select the matching Service Type's radio button -- if empty, null, or whitespace, then do nothing because it contains a default value
             if (ServiceType == "Hourly")
             {
@@ -259,7 +239,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
             {
                 oneoffservicetypeRadioButton.Click();
             }
+        }
 
+        public void AddLocation(string Location)
+        {
             // find and select the matching Location Type's radio button -- if empty, null, or whitespace, then do nothing because it contains a default value
             if (Location == "On-site")
             {
@@ -269,70 +252,49 @@ namespace MVPSt_2023_Feb_Competition.Pages
             {
                 onlinelocationRadioButton.Click();
             }
+        }
 
+        public void AddStartDate(string StartDate)
+        {
             // if StartDate is not empty, null, or whitespace, then convert it to dd/mm/yyyy format
             bool emptynullorwhitespaceSD = string.IsNullOrWhiteSpace(StartDate);
             if (emptynullorwhitespaceSD == true)
             {
-                // place focus on the day portion of the Start date, then
-                // send the Tab key 3 times to move the focus to the day portion of the End Date
-                // because Start Date defaults to Today when adding new listing
-                //startdatedayTextbox.Click();
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab, Keys.Tab, Keys.Tab);
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-
                 // move the focus to the day portion of the End Date
                 enddatedayTextbox.Click();
             }
             else
             {
                 string convertedDate = ConvertDate(StartDate); // returns dd/mm/yyyy
-                
-                // must enter dd mm yyyy separately
-                startdatedayTextbox.SendKeys(convertedDate.Substring(0,2));
-                driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(3,2));
-                driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(6,4));
+
+                // must enter returned format dd/mm/yyyy separately
+
+                startdatedayTextbox.SendKeys(convertedDate.Substring(0, 2));
+                driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(3, 2));
+                driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(6, 4));
 
                 // move focus from Start Date year to day portion of End Date by sending the Tab key once
                 driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
-            // if EndDate is empty, null, or blank, then move the focus to Sunday's checkbox
+        public void AddEndDate(string EndDate)
+        {
             bool emptynullorwhitespaceED = string.IsNullOrWhiteSpace(EndDate);
-            if (emptynullorwhitespaceED == true)
+            if (emptynullorwhitespaceED == false)
             {
-                Console.Write("End Date is empty");
-                // move focus to Sunday's checkbox by sending 3 Tab keys because unable to identify Sunday's checkbox
-                //sunCheckbox.Click();
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                // following 2 Tab keys failed to move the focus, focus remained in End Date's mm field
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-            }
-            else
-            {
-                string convertedDate = ConvertDate(EndDate);
+                string convertedDate = ConvertDate(EndDate); // returns dd/mm/yyyy
 
                 // must enter returned format dd/mm/yyyy separately
-                //enddatedayTextbox.SendKeys(convertedDate.Substring(0, 2));
-                // having trouble recognizing the XPath for the day portion of the End Date so simply forcing a tab key to
-                // move cursor from the year portion of the Start Date into the day portion of the End Date by pressing Tab key Twice
-                // -- or the Escape key once followed by the Tab key once
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Escape);
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+
                 driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(0, 2));
-                // tab did not change focus
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
                 driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(3, 2));
-                //driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
                 driver.SwitchTo().ActiveElement().SendKeys(convertedDate.Substring(6, 4));
-
-                // after entering the year send the tab key to place the focus in the Sunday checkbox
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddSunday(string Sun)
+        {
             // if Sunday = Y, then ensure Sunday's checkbox is ticked, otherwise; ensure Sunday's checkbox is Not ticked
             if (Sun == "Y")
             {
@@ -340,7 +302,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!sunCheckbox.Selected)
                 {
                     sunCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Sunday is Not = "Y"
@@ -351,41 +312,30 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     sunCheckbox.Click();
                 }
             }
+        }
 
-            // if days' start and end time are not blank, then reformat the time to hhmmAM/PM
-            if (string.IsNullOrWhiteSpace(SunStartTime) == true) // time contains no data
-            {
-                // move focus to Sunday's End Time
-                sunendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddSundayStartTime(string SunStartTime)
+        {
+            if (string.IsNullOrWhiteSpace(SunStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(SunStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + SunStartTime);
                 sunstarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Sunday's End Time
-                sunendtimeTextbox.Click();
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(SunEndTime) == true) // time contains no data
-            {
-                // move focus to Monday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-
-            }
-            else // time contains data
+        public void AddSundayEndTime(string SunEndTime)
+        {
+            if (string.IsNullOrWhiteSpace(SunEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(SunEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + SunEndTime);
                 sunendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Monday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddMonday(string Mon)
+        {
             // if Monday = Y, then ensure Monday's checkbox is ticked, otherwise; ensure Monday's checkbox is Not ticked
             if (Mon == "Y")
             {
@@ -393,7 +343,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!monCheckbox.Selected)
                 {
                     monCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Monday is Not = "Y"
@@ -404,40 +353,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     monCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(MonStartTime) == true) // time contains no data
-            {
-                // move focus to Monday's End Time
-                monendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddMondayStartTime(string MonStartTime)
+        {
+            // if Monday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Monday's start time textbox
+            if (string.IsNullOrWhiteSpace(MonStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(MonStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + MonStartTime);
                 monstarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Tuesday's End Time
-                monendtimeTextbox.Click();
-
             }
-            if (string.IsNullOrWhiteSpace(MonEndTime) == true) // time contains no data
-            {
-                // move focus to Tuesday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+        }
 
-            }
-            else // time contains data
+        public void AddMondayEndTime(string MonEndTime)
+        {
+            // if Monday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Monday's end time textbox
+            if (string.IsNullOrWhiteSpace(MonEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(MonEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + MonEndTime);
                 monendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Tuesday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddTuesday(string Tue)
+        {
             // if Tuesday = Y, then ensure Tuesday's checkbox is ticked, otherwise; ensure Tuesday's checkbox is Not ticked
             if (Tue == "Y")
             {
@@ -445,7 +386,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!tueCheckbox.Selected)
                 {
                     tueCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Tuesday is Not = "Y"
@@ -456,40 +396,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     tueCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(TueStartTime) == true) // time contains no data
-            {
-                // move focus to Tuesday's End Time
-                tueendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddTuesdayStartTime(string TueStartTime)
+        {
+            // if Tuesday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Tuesday's start time textbox
+            if (string.IsNullOrWhiteSpace(TueStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(TueStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + TueStartTime);
                 tuestarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Tuesday's End Time
-                tueendtimeTextbox.Click();
-
             }
-            if (string.IsNullOrWhiteSpace(TueEndTime) == true) // time contains no data
-            {
-                // move focus to Wednesday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+        }
 
-            }
-            else // time contains data
+        public void AddTuesdayEndTime(string TueEndTime)
+        {
+            // if Tuesday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Tuesday's end time textbox
+            if (string.IsNullOrWhiteSpace(TueEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(TueEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + TueEndTime);
                 tueendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Wednesday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddWednesday(string Wed)
+        {
             // if Wednesday = Y, then ensure Wednesday's checkbox is ticked, otherwise; ensure Wednesday's checkbox is Not ticked
             if (Wed == "Y")
             {
@@ -497,7 +429,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!wedCheckbox.Selected)
                 {
                     wedCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Wednesday is Not = "Y"
@@ -508,40 +439,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     wedCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(WedStartTime) == true) // time contains no data
-            {
-                // move focus to Wednesday's End Time
-                wedendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddWednesdayStartTime(string WedStartTime)
+        {
+            // if Wednesday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Wednesday's start time textbox
+            if (string.IsNullOrWhiteSpace(WedStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(WedStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + WedStartTime);
                 wedstarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Wednesday's End Time
-                wedendtimeTextbox.Click();
-
             }
-            if (string.IsNullOrWhiteSpace(WedEndTime) == true) // time contains no data
-            {
-                // move focus to Thursday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+        }
 
-            }
-            else // time contains data
+        public void AddWednesdayEndTime(string WedEndTime)
+        {
+            // if Wednesday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Wednesday's end time textbox
+            if (string.IsNullOrWhiteSpace(WedEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(WedEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + WedEndTime);
                 wedendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Thursday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddThursday(string Thu)
+        {
             // if Thursday = Y, then ensure Thursday's checkbox is ticked, otherwise; ensure Thursday's checkbox is Not ticked
             if (Thu == "Y")
             {
@@ -549,7 +472,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!thuCheckbox.Selected)
                 {
                     thuCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Thursday is Not = "Y"
@@ -560,40 +482,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     thuCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(ThuStartTime) == true) // time contains no data
-            {
-                // move focus to Thursday's End Time
-                thuendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddThursdayStartTime(string ThuStartTime)
+        {
+            // if Thursday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Thursday's start time textbox
+            if (string.IsNullOrWhiteSpace(ThuStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(ThuStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + ThuStartTime);
                 thustarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Thursday's End Time
-                thuendtimeTextbox.Click();
-
             }
-            if (string.IsNullOrWhiteSpace(ThuEndTime) == true) // time contains no data
-            {
-                // move focus to Friday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+        }
 
-            }
-            else // time contains data
+        public void AddThursdayEndTime(string ThuEndTime)
+        {
+            // if Thursday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Thursday's end time textbox
+            if (string.IsNullOrWhiteSpace(ThuEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(ThuEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + ThuEndTime);
                 thuendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Friday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddFriday(string Fri)
+        {
             // if Friday = Y, then ensure Friday's checkbox is ticked, otherwise; ensure Friday's checkbox is Not ticked
             if (Fri == "Y")
             {
@@ -601,7 +515,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!friCheckbox.Selected)
                 {
                     friCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Friday is Not = "Y"
@@ -612,40 +525,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     friCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(FriStartTime) == true) // time contains no data
-            {
-                // move focus to Friday's End Time
-                friendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddFridayStartTime(string FriStartTime)
+        {
+            // if Friday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Friday's start time textbox
+            if (string.IsNullOrWhiteSpace(FriStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(FriStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + FriStartTime);
                 fristarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Friday's End Time
-                friendtimeTextbox.Click();
-
             }
-            if (string.IsNullOrWhiteSpace(FriEndTime) == true) // time contains no data
-            {
-                // move focus to Saturday's checkbox by sending 3 Tab keys
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
+        }
 
-            }
-            else // time contains data
+        public void AddFridayEndTime(string FriEndTime)
+        {
+            // if Friday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Friday's end time textbox
+            if (string.IsNullOrWhiteSpace(FriEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(FriEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + FriEndTime);
                 friendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Saturday's checkbox by sending 1 Tab key
-                driver.SwitchTo().ActiveElement().SendKeys(Keys.Tab);
             }
+        }
 
+        public void AddSaturday(string Sat)
+        {
             // if Saturday = Y, then ensure Saturday's checkbox is ticked, otherwise; ensure Saturday's checkbox is Not ticked
             if (Sat == "Y")
             {
@@ -653,7 +558,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 if (!satCheckbox.Selected)
                 {
                     satCheckbox.Click();
-                    //driver.SwitchTo().ActiveElement().SendKeys(Keys.Space);
                 }
             }
             else   // Saturday is Not = "Y"
@@ -664,29 +568,32 @@ namespace MVPSt_2023_Feb_Competition.Pages
                     satCheckbox.Click();
                 }
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(SatStartTime) == true) // time contains no data
-            {
-                // move focus to Saturday's End Time
-                satendtimeTextbox.Click();
-            }
-            else // time contains data
+        public void AddSaturdayStartTime(string SatStartTime)
+        {
+            // if Saturday's start time is not blank, then reformat the time to hhmmAM/PM and enter into Saturday's start time textbox
+            if (string.IsNullOrWhiteSpace(SatStartTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(SatStartTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + SatStartTime);
                 satstarttimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
-
-                // move focus to Saturday's End Time
-                satendtimeTextbox.Click();
-
             }
+        }
+
+        public void AddSaturdayEndTime(string SatEndTime)
+        {
+            // if Saturday's end time is not blank, then reformat the time to hhmmAM/PM and enter into Saturday's end time textbox
             if (string.IsNullOrWhiteSpace(SatEndTime) == false) // time contains data
             {
                 reformattedtime = Reformat3TimeElements(SatEndTime);
                 Assert.IsNotEmpty(reformattedtime, "Invalid time of " + SatEndTime);
                 satendtimeTextbox.SendKeys(reformattedtime.Substring(0, 6));
             }
+        }
 
+        public void AddSkillTrade(string SkillTrade, string SkillExchange, string Credit)
+        {
             // find and select the matching Skill Trade's radio button -- if empty, null, or whitespace, then do nothing because it contains a default value
             if (SkillTrade == "Skill-exchange")
             {
@@ -711,8 +618,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                         {
                             driver.SwitchTo().ActiveElement().SendKeys(arrayofSkills[arrayofSkillsIndex] + ",");
                         }
-
-                        //Console.WriteLine("inside for loop, Tag = " + arrayofSkills[arrayofSkillsIndex]);
                     }
                 }
                 else
@@ -726,7 +631,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 creditTextbox.Clear();
                 creditTextbox.SendKeys(Credit);
             }
+        }
 
+        public void AddWorkSamples(string WorkSamples)
+        {
             // if work samples contains data, then click the upload button and call the AutoIT script to complete the upload
             if (string.IsNullOrWhiteSpace(WorkSamples) == false) // Work Samples contains 1 or more files to upload
             {
@@ -734,8 +642,10 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 worksamplesicon.Click();
                 Process.Start(AutoITuploadscript).WaitForExit(8000);
             }
+        }
 
-
+        public void AddActive(string Active)
+        {
             // find and select the matching active radio button -- if empty, null, or whitespace, then do nothing because it contains a default value
             if (Active == "Active")
             {
@@ -745,13 +655,16 @@ namespace MVPSt_2023_Feb_Competition.Pages
             {
                 hiddenRadioButton.Click();
             }
+        }
 
+        public void ProcessTheActionButton(string ValidInvalid, string ActionButton, string TitleError, string DescriptionError, string StartEndDateError)
+        {
             // click the Save or Cancel button per the ActionButton parameter
             if (ActionButton == "Save")
             {
                 // click the Save button
                 saveButton.Click();
-                Thread.Sleep(8000);
+                Thread.Sleep(5000);
 
                 // capture the message in the pop-up window
                 //savedMessage = GetMessageWhenSaving();
@@ -774,7 +687,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 // -- if Save button is found, then still on the Share Skill page due to invalid data
                 // -- if Save button is NOT found, then presume user is on the Manage Listings page due to valid data being accepted and a new listing was created
 
-                //Wait.WaitForElementToExist("XPath", saveButtonXP, 4);
                 int numberofSaveButtons = driver.FindElements(By.XPath(saveButtonXP)).Count;
                 if (numberofSaveButtons > 0) // still on Share Skills page because Save button was found due to an error caused by invalid data
                 {
@@ -783,19 +695,17 @@ namespace MVPSt_2023_Feb_Competition.Pages
                         Console.WriteLine("FAIL: Still on Share Skill page when valid data was entered");
                         Console.WriteLine("Ending program");
                         test.Log(Status.Fail, "Still on Share Skill page when valid data was entered");
+                        //GetScreenshot(TestCaseID);
                         Assert.Fail("FAIL: Still on Share Skill page when valid data was entered");
                     }
-                    else // invalid data is ok
+                    else // invalid data has been entered on the Share Skill page and the ValidInvalid parm is Not = Valid, so this is expected for a negative test
                     {
-                        // FollowupAction can be read in program.cs
-                        // may not need to return any boolean value
-
                         // this path is for invalid data where user clicks Save button but remains on the Share Skill page so...
                         // just click the Cancel button for this scenario to exit this path and then verify listing count on Manage Listings page is unchanged
                         ///// changed my mind -- do not click Cancel because invalid test data on Share Skill page reads multiple rows until FollowupAction not = Yes
                         ///// and must therefore remain on the Share Skill page and not be returned to any other page when the Cancel button is clicked so...
                         ///// just write a line acknowledging a valid error on the Share Skill page is present
-                        //cancelButton.Click(); // per all negative test cases where invalid data is entered, and not corrected, on the Share Skills page
+
                         Console.WriteLine("Invalid data has been entered on this Shared Skill page resulting in an error message that appears on the screen");
                         if (string.IsNullOrWhiteSpace(TitleError) == false) // TitleError contains data
                         {
@@ -809,6 +719,7 @@ namespace MVPSt_2023_Feb_Competition.Pages
                             {
                                 Console.WriteLine("FAIL: Actual title error message '" + titleerrormessage.Text + "' does not match expected error '" + TitleError);
                                 test.Log(Status.Fail, "Actual title error message '" + titleerrormessage.Text + "' does not match expected error '" + TitleError + "'");
+                                //GetScreenshot(TestCaseID);
                             }
                         }
 
@@ -824,6 +735,7 @@ namespace MVPSt_2023_Feb_Competition.Pages
                             {
                                 Console.WriteLine("FAIL: Actual description error message '" + descriptionerrormessage.Text + "' does not match expected error '" + DescriptionError);
                                 test.Log(Status.Fail, "Actual description error message '" + descriptionerrormessage.Text + "' does not match expected error '" + DescriptionError + "'");
+                                //GetScreenshot(TestCaseID);
                             }
                         }
 
@@ -839,6 +751,7 @@ namespace MVPSt_2023_Feb_Competition.Pages
                             {
                                 Console.WriteLine("Actual start date / end date error message '" + startenddateerrormessage.Text + "' does not match expected error '" + StartEndDateError);
                                 test.Log(Status.Fail, "Actual start date / end date error message '" + startenddateerrormessage.Text + "' does not match expected error '" + StartEndDateError + "'");
+                                //GetScreenshot(TestCaseID);
                             }
                         }
                     }
@@ -857,9 +770,9 @@ namespace MVPSt_2023_Feb_Competition.Pages
             }
 
             //return savedMessage;
-            
+
             // if ValidInvalid parameter = Valid, then message should be successful, otherwise; the message will be unsuccessful
-            // must be able to handle test case where invalid data are corrected and successfully saved in same test case
+            // must be able to handle test case where invalid data are corrected and successfully saved in same test case -- using FollowupMessage?
         }
 
         public string Reformat3TimeElements(string TimetoReformat)
@@ -873,110 +786,79 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 timeString = ("0" + TimetoReformat.Substring(0, 1) + TimetoReformat.Substring(2, 2) + TimetoReformat.Substring(5, 2));
             }
             else
-            if (TimetoReformat.Substring(2, 1) == ":")
             {
-                timeString = (TimetoReformat.Substring(0,2) + TimetoReformat.Substring(3, 2) + TimetoReformat.Substring(6,2));
-            }
-            else
-            {
-                Console.WriteLine("FAIL: Invalid time of " + TimetoReformat);
-                test.Log(Status.Fail, "Invalid time of '" + TimetoReformat + "'");
+                if (TimetoReformat.Substring(2, 1) == ":")
+                {
+                    timeString = (TimetoReformat.Substring(0, 2) + TimetoReformat.Substring(3, 2) + TimetoReformat.Substring(6, 2));
+                }
+                else
+                {
+                    Console.WriteLine("FAIL: Invalid time of " + TimetoReformat);
+                    test.Log(Status.Fail, "Invalid time of '" + TimetoReformat + "'");
+                }
             }
             return timeString;
         }
 
         public string ConvertDate(string DatetoConvert)
         {
-            // expected values/format: Today, Today+nnn, Today-nnn, or variations of ddmmyyyy (Not always 2-digit day and 2-digit month)
+            // expected input/parm values/format [from Test Data spreadsheet]: Today, Today+nnn, Today-nnn, or variations of ddmmyyyy (Not always 2-digit day and 2-digit month)
             // must return dd/mm/yyyy using ReformatDate method
-            // search for: 1. Today, then 2. ' ' after 'y' in Today, then 3. '+' after 'y' in Today, then 4. '-' after 'y' in Today,
-            // add or subtract nnn days to/from today's date accordingly
-            //Console.WriteLine("in ConvertDate method");
+            // add or subtract nnn days to/from today's date accordingly when DatetoConvert = Today+nnn or Today-nnn using method CalculateTheDate method
+
+            finalDate = null;
+
             if (DatetoConvert.Substring(0, 5) == "Today")
             {
                 int todaylength = DatetoConvert.Length;
-                if (todaylength == 5) // there is no '+' or '-' following Today
+                if (todaylength == 5) // there is nothing ['+' or '-'] following Today
                 {
                     calculatedDate = DateTime.Today;
                     stringDate = calculatedDate.ToString();
                     finalDate = ReformatDate(stringDate);
-                    //Console.Write("DatetoConvert is today's date = " + finalDate);
                     return finalDate;
-                    //}
                 }
-                else // todaylength > 5 so look for '+' and/or '-'
+                else // todaylength > 5 which means something [presumably '+' or '-'] follows Today; otherwise invalid data follows Today
                 {
-                    if (DatetoConvert.Substring(5, 1) == "+")
-                    {
-                        int stringlength = DatetoConvert.Length;
-                        int numberofdigits = stringlength - 6;
-                        string justdaysstring = DatetoConvert.Substring(6, numberofdigits);
-                        int justdaysint;
-                        bool isParsable = Int32.TryParse(justdaysstring, out justdaysint);
-                        if (isParsable)
-                        {
-                            calculatedDate = DateTime.Today.AddDays(justdaysint);
-                            stringDate = calculatedDate.ToString();
-                            finalDate = ReformatDate(stringDate);
-                            //Console.WriteLine("DatetoConvert is Today+ a positive number resulting in " + finalDate);
-                            return finalDate;
-                        }
-                        else
-                        {
-                            Console.WriteLine("FAIL: " + DatetoConvert + " could not be parsed");
-                            test.Log(Status.Fail, DatetoConvert + " could not be parsed");
-                            return DatetoConvert;
-                        }
-                    }
-                    else
-                    {
-                        if (DatetoConvert.Substring(5, 1) == "-") // negative sign is for testing invalid data (negative testing) because Start and End dates cannot be back-dated
-                        {
-                            int stringlength = DatetoConvert.Length;
-                            int numberofdigits = stringlength - 6;
-                            string dayswithnegativesign = DatetoConvert.Substring(5, numberofdigits + 1);
-                            int justdaysint;
-                            bool isParsable = Int32.TryParse(dayswithnegativesign, out justdaysint);
-                            if (isParsable)
-                            {
-                                calculatedDate = DateTime.Today.AddDays(justdaysint);
-                                stringDate = calculatedDate.ToString();
-                                finalDate = ReformatDate(stringDate);
-                                //Console.WriteLine("DatetoConvert is Today- a negative number resulting in " + finalDate);
-                                return finalDate;
-                            }
-                            else
-                            {
-                                Console.WriteLine("FAIL: " + DatetoConvert + " could not be parsed");
-                                test.Log(Status.Fail, DatetoConvert + " could not be parsed");
-                                return DatetoConvert;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("FAIL: Invalid characters after 'Today' " + DatetoConvert);
-                            return DatetoConvert;
-                        }
-                    }
+                    finalDate = CalculateTheDate(DatetoConvert);
+                    return finalDate;
                 }
-                }
+            }
             else  // Date does NOT begin with 'Today'
             {
-                // variation of dd/mm/yyyy
+                // DatetoConvert is a variation of dd/mm/yyyy, only yyyy have a fixed, constant length [of 4], dd and mm can be 1 or 2 digits
                 // just reformat the string - don't use Parse
 
-                //calculatedDate = DateTime.ParseExact(DatetoConvert, "dd/mm/yyyy", CultureInfo.InvariantCulture);
-                // have to reformat in order to put leading zero back in dd field that Parse removed
-                //finalDate = ReformatDate(calculatedDate);
                 finalDate = ReformatDate(DatetoConvert);
-                //Console.Write("DatetoConvert is " + DatetoConvert + " and was reformatted to " + finalDate);
                 return finalDate;
-
-                // require the excel sheet to use dd/mm/yyyy [when not using Today...], then no conversion or reformat will be necessary
             }
         }
 
-        //public string ReformatDate(DateTime DatetoReformat)
+        public string CalculateTheDate(string DatetoCalculate)
+        {
+            dayswithleadingsign = null;
+
+            int stringlength = DatetoCalculate.Length;
+            int numberofdigits = stringlength - 6;
+
+            dayswithleadingsign = DatetoCalculate.Substring(5, numberofdigits + 1);
+            int justdaysint;
+            bool isParsable = Int32.TryParse(dayswithleadingsign, out justdaysint);
+            if (isParsable)
+            {
+                calculatedDate = DateTime.Today.AddDays(justdaysint);
+                stringDate = calculatedDate.ToString();
+                finalDate = ReformatDate(stringDate);
+                return finalDate;
+            }
+            else
+            {
+                Console.WriteLine("FAIL: " + DatetoCalculate + " could not be parsed");
+                test.Log(Status.Fail, DatetoCalculate + " could not be parsed");
+                return DatetoCalculate;
+            }
+        }
+
         public string ReformatDate(string DatetoReformat)
         {
             // date values of d/m/yyyy, d/mm/yyyy, and dd/m/yyyy will be reformatted to dd/mm/yyyy
@@ -987,7 +869,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 {
                     // original format is d/m/yyyy
                     ReformattedDate = ("0" + DatetoReformat.Substring(0, 1) + "/0" + DatetoReformat.Substring(2, 1) + "/" + DatetoReformat.Substring(4, 4));
-                    //Console.WriteLine("uncalculated date of " + DatetoReformat + " was reformatted as " + ReformattedDate);
                     return ReformattedDate;
                 }
                 else
@@ -1004,20 +885,18 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 {
                     // original format is dd/m/yyyy
                     ReformattedDate = (DatetoReformat.Substring(0, 2) + "/0" + DatetoReformat.Substring(3, 1) + "/" + DatetoReformat.Substring(5, 4));
-                    //Console.WriteLine("uncalculated date of " + DatetoReformat + " was reformatted as " + ReformattedDate);
                     return ReformattedDate;
                 }
                 else
                 {
                     // original format is dd/mm/yyyy -- just return the original value as it requires no reformat
                     ReformattedDate = DatetoReformat;
-                    //Console.WriteLine("uncalculated date of " + DatetoReformat + " required no reformat and was returned as " + ReformattedDate);
                     return ReformattedDate;
                 }
             }
         }
 
-        // this method is only called by positive test cases containing valid data
+        // this method is only called by Add & Edit positive test cases containing valid data
         public bool CompareShareSkillValues(string ActionOfTest, string Title, string Description, string Category, string Subcategory, string Tags, string ServiceType, string Location, string StartDate, string EndDate, string Sun, string SunStartTime, string SunEndTime, string Mon, string MonStartTime, string MonEndTime, string Tue, string TueStartTime, string TueEndTime, string Wed, string WedStartTime, string WedEndTime, string Thu, string ThuStartTime, string ThuEndTime, string Fri, string FriStartTime, string FriEndTime, string Sat, string SatStartTime, string SatEndTime, string SkillTrade, string SkillExchange, string Credit, string WorkSamples, string Active)
         {
             test.Log(Status.Info, "Beginning comparisons on Share Skill page");
@@ -1026,9 +905,6 @@ namespace MVPSt_2023_Feb_Competition.Pages
 
             // wait for Share Skill page to load and the Title textbox to be clickable
             Wait.WaitForElementToBeClickable("Name", "title", 5);
-            
-            //wait for Share Skill page to load by waiting for the Save button to be clickable
-            //Wait.WaitForElementToBeClickable("XPath", saveButtonXP, 10);
 
             // title was stored into 'value', not 'text'
             if (titleTextbox.GetAttribute("value") != Title)
@@ -1067,8 +943,20 @@ namespace MVPSt_2023_Feb_Competition.Pages
             // EditShareSkillValid removes 1 of the existing tags and adds a new tag which cannot be reconciled until code removes all tags and adds new tag(s)
             if (ActionOfTest != "EditShareSkillValid")
             {
-                int numberoftagsoneditpage = driver.FindElements(By.ClassName("ReactTags__tag")).Count;
-                if (numberoftagsoneditpage != numberofDelimiters + 1)
+                int numberoftagsoneditpage = driver.FindElements(By.ClassName("ReactTags__tag")).Count; // counts both Tags and SkillTrade tags (if selected)
+                if (SkillTrade == "Skill-exchange")
+                {
+                    //justtagscount = 0;
+                    //justtagscount = numberoftagsoneditpage - (numberofSkills + 1);
+                    numberoftagsoneditpage -= numberofSkills + 1;
+                }
+
+                if (numberoftagsoneditpage == (numberofDelimiters + 1))
+                {
+                    Console.WriteLine("Pass: Actual number of Tags '" + numberoftagsoneditpage + "' matches expected number");
+                    test.Log(Status.Pass, "Actual number of Tags '" + numberoftagsoneditpage + "' matches expected number");
+                }
+                else
                 {
                     shareskillmatchingflag = false;
                     Console.WriteLine("FAIL - Actual number of Tags '" + numberoftagsoneditpage + "' does not match expected number '" + numberofDelimiters + "' plus 1");
@@ -1116,6 +1004,8 @@ namespace MVPSt_2023_Feb_Competition.Pages
 
             if (shareskillmatchingflag == true)
             {
+                // force a failure
+                //return false;
                 return true;
             }
             else

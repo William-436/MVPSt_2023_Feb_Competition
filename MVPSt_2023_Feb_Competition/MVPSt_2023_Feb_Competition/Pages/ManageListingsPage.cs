@@ -1,11 +1,5 @@
 ﻿using OpenQA.Selenium;
-//using OpenQA.Selenium.Support.UI;
 using static MVPSt_2023_Feb_Competition.Utilities.CommonDriver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MVPSt_2023_Feb_Competition.Utilities;
 using AventStack.ExtentReports;
 
@@ -15,15 +9,16 @@ namespace MVPSt_2023_Feb_Competition.Pages
     {
         // page objects
 
-        private IWebElement profileLink => driver.FindElement(By.XPath(profileLinkXP));
-        private IWebElement managelistingsMessage => driver.FindElement(By.XPath(managelistingsMessageXP));
-        private IWebElement tableofListings => driver.FindElement(By.XPath(tableofListingsXP));
+        // objects used for obtaining count of number of listings -- uncomment when solution is found to identify dynamic, next page navigation control
+        //private IWebElement profileLink => driver.FindElement(By.XPath(profileLinkXP));
+        //private IWebElement managelistingsMessage => driver.FindElement(By.XPath(managelistingsMessageXP));
+        //private IWebElement tableofListings => driver.FindElement(By.XPath(tableofListingsXP));
         //private IWebElement nextpageLink => driver.FindElement(By.XPath(nextpageLinkXP));
         //private IWebElement nextpageLink => (IWebElement)driver.FindElement(By.PartialLinkText(">"));
         //private IWebElement disablednextpageLink => driver.FindElement(By.ClassName("ui disabled button otherPage"));
         private IWebElement shareskillButton => driver.FindElement(By.XPath(shareskillButtonXP));
 
-        // Get elements used to validate Actual against Expected data
+        // elements used to validate Actual against Expected data
         private IWebElement savedCategory => driver.FindElement(By.XPath(savedCategoryXP));
         private IWebElement savedTitle => driver.FindElement(By.XPath(savedTitleXP));
         private IWebElement savedDescription => driver.FindElement(By.XPath(savedDescriptionXP));
@@ -33,15 +28,18 @@ namespace MVPSt_2023_Feb_Competition.Pages
         private IWebElement savedSkillTradeIcon => driver.FindElement(By.XPath(savedSkillTradeIconXP));
         // Active = Active or Hidden
         //private IWebElement savedActive => driver.FindElement(By.XPath(savedActiveXP));
+
         private IWebElement firstroweditIcon => driver.FindElement(By.XPath(firstroweditIconXP));
 
 
         // XPath of elements
-        private string profileLinkXP = "//*[@id=\"listing-management-section\"]/section[1]/div/a[2]";
-        private string managelistingsMessageXP = "//*[@id=\"listing-management-section\"]/div[2]/h3";
-        private string tableofListingsXP = "//tbody[1]";
+        //private string profileLinkXP = "//*[@id=\"listing-management-section\"]/section[1]/div/a[2]";
+        //private string managelistingsMessageXP = "//*[@id=\"listing-management-section\"]/div[2]/h3";
+        //private string tableofListingsXP = "//tbody[1]";
+        //private string previouspageLinkXP = "//button[text()='<']";
         //private string nextpageLinkXP = "//*[@id=\"listing-management-section\"]/div[2]/div[1]/div[2]/button[3]";
         //private string nextpageLinkXP = "//*[@id=\"listing-management-section\"]/div[2]/div[1]/div[2]/button[4]";
+        //private string nextpageLinkXP = "//button[text()='>']";
         private string shareskillButtonXP = "//*[@id=\"listing-management-section\"]/section[1]/div/div[2]/a";
         private string savedCategoryXP = "//*[@id=\"listing-management-section\"]/div[2]/div[1]/div[1]/table/tbody/tr[1]/td[2]";
         private string savedTitleXP = "//*[@id=\"listing-management-section\"]/div[2]/div[1]/div[1]/table/tbody/tr[1]/td[3]";
@@ -52,49 +50,56 @@ namespace MVPSt_2023_Feb_Competition.Pages
         private string firstroweditIconXP = "//*[@id=\"listing-management-section\"]/div[2]/div[1]/div[1]/table/tbody/tr[1]/td[8]/div/button[2]/i";
 
         // Miscellaneous
+
+        // variables used for the counting of number of listings -- commented out until find solution to recognizing dynamic, next page navigation control
         //int numberofrows;
         //int numberofListings;
+        //string nextpageLinkstring;
         //string continuecounting;
+
+        private bool boolflag;
+        private string? attributeValue;
 
         //public int CountAllListings() // still need to find solution to finding and clicking next page navigation arrow when web element is enabled
         //{
         //    // count the number of rows on every page by looping through all pages
         //    // if message 'You do not have any service listings!' displays on page, then set numberofListings to zero; otherwise, begin counting
 
-        //    // the following line works when true but cannot find the element's XPath when number of listings > 0
-        //    //if (managelistingsMessage.Text == "You do not have any service listings!")
-        //    //driver.Navigate().Refresh();
-        //    //numberofListings = 0;
-        //    // count the number of elements that match the XPath for the message element on the Manage Listings page
+        //    numberofListings = 0;
+            
         //    int result = driver.FindElements(By.XPath("//*[@id=\"listing-management-section\"]/div[2]/h3")).Count;
-        //    if (result > 0) // message element was found
+        //    if (result > 0) // the message element was found
         //    {
-        //        if (managelistingsMessage.Text == "You do not have any service listings!")
+        //        if (managelistingsMessage.Text == "You do not have any service listings!") // the only known text when a message exists
         //        {
         //            numberofListings = 0;
+        //            return numberofListings;
         //        }
         //        else
         //        {
-        //            Console.WriteLine("FAIL: Message on Manage Listings page does not match expected message of 'You do not have any service listings!");
+        //            Console.WriteLine("FAIL: Message on Manage Listings page '" + managelistingsMessage.Text + "' does not match expected message of 'You do not have any service listings!");
         //            Console.WriteLine("Ending the program");
+        //            test.Log(Status.Fail, "Message on Manage Listings page '" + managelistingsMessage.Text + "' does not match expected message of 'You do not have any service listings!");
+        //            //GrabScreenShot(TestCaseID);
+        //            Assert.Fail("Message on Manage Listings page '" + managelistingsMessage.Text + "' does not match expected message of 'You do not have any service listings!");
         //            Cleanup();
+        //            return numberofListings;
         //        }
         //    }
-        //    else // message element does not exist, therefore 1 or more listings exist
+        //    else // message element does not exist, therefore 1 or more pages of listings exist
         //    {
-        //        // the following line counts all rows from all pages without having to navigate to each page to count rows on each page
-        //        // no it does not! it keeps returning 6 even when actual number is 7
-        //        //numberofListings = driver.FindElements(By.TagName("tr")).Count;
+        //        //numberofListings = driver.FindElements(By.TagName("tr")).Count; // Page 1
 
-        //        //Console.WriteLine("number of listings = " + numberofListings);
+        //        //Console.WriteLine("number of listings on Page 1 = " + numberofListings);
 
-        //        // following definitions do not work
-        //        //IWebElement nextpageLink = driver.FindElement(By.PartialLinkText(">"));
-        //        //IWebElement nextpageLink = driver.FindElement(By.CssSelector("u1[role='button'>>]"));
-        //        // move the following lines inside the do/while loop if they work
-        //        IWebElement nextpageLink = driver.FindElement(By.TagName("ui buttons semantic-ui-react-button-pagination"));
+        //        //        // following definitions do not work
+        //        //        //IWebElement nextpageLink = driver.FindElement(By.PartialLinkText(">"));
+        //        //        //IWebElement nextpageLink = driver.FindElement(By.CssSelector("u1[role='button'>>]"));
+        //        //        // move the following lines inside the do/while loop if they work
+        //        //        IWebElement nextpageLink = driver.FindElement(By.TagName("ui buttons semantic-ui-react-button-pagination"));
+        //        IWebElement nextpageLink = driver.FindElement(By.XPath(nextpageLinkXP));
 
-        //        string nextpageLinkstring = nextpageLink.GetAttribute("");
+        //        nextpageLinkstring = nextpageLink.GetAttribute("");
         //        if (nextpageLinkstring.Contains("disabled"))
         //        {
         //            Console.WriteLine("next page control is disabled");
@@ -103,43 +108,34 @@ namespace MVPSt_2023_Feb_Competition.Pages
         //        {
         //            Console.WriteLine("next page control is enabled");
         //        }
-                
-        //        // just giving a default value until solution to looping issue is found along with how to capture row count for every page
-        //        //numberofListings = 1;
-        //        // -- design: 1. count # of rows on current page by adding rows to a total row count, 2. if next page icon is enabled, then click it AND
-        //        // -- perform step 1. again. Must do step 1 a miniumum of 1 time!
-        //        numberofListings = 0;
-        //        //continuecounting = "Yes";
-        //        //do
-        //        //{
+
+        //        //        // -- design: 1. count # of rows on current page by adding rows to a total row count, 2. if next page icon is enabled, then click it AND
+        //        //        // -- perform step 1. again. Must do step 1 a miniumum of 1 time!
+        //        continuecounting = "Yes";
+        //        do
+        //        {
         //            numberofrows = 0;
         //            IList<IWebElement> tablerow = tableofListings.FindElements(By.TagName("tr"));
         //            numberofrows = tablerow.Count;
         //            numberofListings += numberofrows; // adds numberofrows to numberofListings
-        //        //    // if next page icon is enabled, then click it, else set continuecounting to 'No'
-        //        //    if (nextpageLink.Enabled == true)
-        //        //    {
-        //        //        nextpageLink.Click();
-        //        //    }
-        //        //    else
-        //        //    {
-        //        //        continuecounting = "No";
-        //        //    }
-        //        //}
-        //        //// while next page navigation icon is enabled
-        //        //while (continuecounting == "Yes");
-        //        //bool v = nextpageLink.GetAttribute("disabled") = true;
-        //        //while (v)
-        //        //{
+        //            //if next page icon is enabled, then click it, else set continuecounting to 'No'
+        //            if (nextpageLink.Enabled == true)
+        //            {
+        //                nextpageLink.Click();
+        //                Wait.WaitForElementToBeClickable("XPath", previouspageLinkXP, 5);
+        //            }
+        //            else
+        //            {
+        //                continuecounting = "No";
+        //            }
+        //        }
+        //        // while next page navigation icon is enabled
+        //        while (continuecounting == "Yes");
 
-        //        //}
+        //        return numberofListings;
         //    }
-        //    // remove following line after resolving the loop and next page navigation control issue
-        //    //numberofListings = 1;
-        //    return numberofListings;
-
         //}
-        
+
         //public void NavigateToProfileHome()
         //{
         //    // find and click the Profile link
@@ -152,68 +148,164 @@ namespace MVPSt_2023_Feb_Competition.Pages
             shareskillButton.Click();
         }
 
-        // this method is only called by positive test cases containing valid data
-        public bool CompareManageListingsValues(int NumberOfExistingListingsInt, string Category, string Title, string Description, string ServiceType, string SkillTrade, string Active)
+        // the following Check...OnManageListings methods are only called by positive test cases because equal/matching comparisons are
+        // considered a success -- but a negative test ie. invalid data on Share Skill page would be rejected/not saved so a match of invalid data
+        // on the 1st row on the Manage Listings page would be a failure so... maybe pass the ValidInvalid parm to ensure both scenarios can be handled properly
+        // NO !! because a negative test could use some valid and some invalid parms where the valid parms might match the existing listing at the top of
+        // the Manage Listings page and the ValidInvalid parm represents the entire listing, not the individual parm
+
+        // the following method must be able to process comparison for Adding and Editing both valid and invalid data scenarios
+        //public bool CheckNumberOfListingsOnManageListings(int NumberOfListingsToCompare, string ActionOfTest, string ValidInvalid) // after an action has been performed
+        //{
+        //    // set default value of returned value to false
+        //    boolflag = false;
+        //    int currentnumberoflistings = CountAllListings();
+
+        //    if (ActionOfTest.Substring (1, 3) == "Add")
+        //    {
+        //        if (ValidInvalid == "Valid") // added 1 listing to pre-action count
+        //        {
+        //            if (NumberOfListingsToCompare + 1 == currentnumberoflistings)
+        //            {
+        //                boolflag = true;
+        //            }
+        //            else
+        //            {
+        //                boolflag = false;
+        //            }
+        //        }
+        //        else // pre-action count should be unchanged
+        //        {
+        //            if (NumberOfListingsToCompare == currentnumberoflistings)
+        //            {
+        //                boolflag = true;
+        //            }
+        //            else
+        //            {
+        //                boolflag = false;
+        //            }
+        //        }
+        //    }
+        //    else // Action is Not 'Add...', therefore both Valid and Invalid 'Edit' actions should not alter the total listing count
+        //    {
+        //        if (NumberOfListingsToCompare == currentnumberoflistings)
+        //        {
+        //            boolflag = true;
+        //        }
+        //        else
+        //        {
+        //            boolflag = false;
+        //        }
+        //    }
+
+        //    if (boolflag == true)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        public bool CheckCategoryOnManageListings(string Category)
         {
-            test.Log(Status.Info, "Beginning comparisons on top row of Manage Listings page");
-            
-            bool managelistingsmatchingflag = true;
-
-            // get number of rows of listings on all Manage Listings pages -- when I get it working
-            ////////////////////////
-
-            if (savedCategory.Text != Category)
+            if (savedCategory.Text == Category)
             {
-                managelistingsmatchingflag = false;
-                Console.WriteLine("FAIL: Manage Listings Category '" + savedCategory.Text + "' does not match expected value '" + Category +"'");
-                test.Log(Status.Fail, "Manage Listings Category does not match expected value");
+                return true;
             }
-
-            // force failure
-            //Title = "Mrs";
-            if (savedTitle.Text != Title)
+            else
             {
-                managelistingsmatchingflag = false;
+                Console.WriteLine("FAIL: Manage Listings Category '" + savedCategory.Text + "' does not match expected value '" + Category + "'");
+                test.Log(Status.Fail, "Manage Listings Category '" + savedCategory.Text + "' does not match expected value '" + Category + "'");
+                return false;
+            }
+        }
+
+        public bool CheckTitleOnManageListings(string Title)
+        {
+            if (savedTitle.Text == Title)
+            {
+                return true;
+            }
+            else
+            {
                 Console.WriteLine("FAIL: Manage Listings Title '" + savedTitle.Text + "' does not match expected value '" + Title + "'");
-                test.Log(Status.Fail, "Manage Listings Title does not match expected value");
+                test.Log(Status.Fail, "Manage Listings Category '" + savedTitle.Text + "' does not match expected value '" + Title + "'");
+                return false;
             }
+        }
 
-            if (savedDescription.Text != Description)
+        public bool CheckDescriptionOnManageListings(string Description)
+        {
+            if (savedDescription.Text == Description)
             {
-                managelistingsmatchingflag = false;
+                return true;
+            }
+            else
+            {
                 Console.WriteLine("FAIL: Manage Listings Description '" + savedDescription.Text + "' does not match expected value '" + Description + "'");
-                test.Log(Status.Fail, "Manage Listings Description does not match expected value");
+                test.Log(Status.Fail, "Manage Listings Description '" + savedDescription.Text + "' does not match expected value '" + Description);
+                return false;
             }
+        }
 
-            if (savedServiceType.Text != ServiceType)
+        public bool CheckServiceTypeOnManageListings(string ServiceType)
+        {
+            if (savedServiceType.Text == ServiceType)
             {
-                managelistingsmatchingflag = false;
+                return true;
+            }
+            else
+            {
                 Console.WriteLine("FAIL: Manage Listings Service Type '" + savedServiceType.Text + "' does not match expected value '" + ServiceType + "'");
-                test.Log(Status.Fail, "Manage Listings Service Type does not match expected value");
+                test.Log(Status.Fail, "Manage Listings Service Type '" + savedServiceType.Text + "' does not match expected value '" + ServiceType + "'");
+                return false;
             }
+        }
 
-            string attributeValue = savedSkillTradeIcon.GetAttribute("class");
-            if (SkillTrade == "Skill-exchange" && attributeValue != "blue check circle outline large icon")
-                {
-                managelistingsmatchingflag = false;
-                Console.WriteLine("FAIL: Manage Listings Skill Trade does not match expected value");
-                test.Log(Status.Fail, "Manage Listings Skill Trade does not match expected value for Skill-exchange");
-            }
+        public bool CheckSkillTradeOnManageListings(string SkillTrade)
+        {
+            boolflag = false;
 
-            if (SkillTrade == "Credit" && attributeValue != "grey remove circle large icon")
+            attributeValue = savedSkillTradeIcon.GetAttribute("class");
+
+            if (SkillTrade == "Skill-exchange") //&& attributeValue == "blue check circle outline large icon")
             {
-                managelistingsmatchingflag = false;
-                Console.WriteLine("FAIL: Manage Listings Skill Trade does not match expected value");
-                test.Log(Status.Fail, "Manage Listings Skill Trade does not match expected value for Credit");
+                if (attributeValue == "blue check circle outline large icon")
+                {
+                    boolflag = true;
+                }
+                else
+                {
+                    Console.WriteLine("FAIL: Manage Listings Skill Trade does not match expected value for Skill-exchange");
+                    test.Log(Status.Fail, "Manage Listings Skill Trade does not match expected value for Skill-exchange");
+                    boolflag = false;
+                }
             }
 
-            // how to check Active slider bar / checkbox to know if it is on or off / Active (blue) or Hidden (grey)
-            // XPaths for Active and Hidden, respectively
-            //*[@id="listing-management-section"]/div[2]/div[1]/div[1]/table/tbody/tr[1]/td[7]/div
-            //*[@id="listing-management-section"]/div[2]/div[1]/div[1]/table/tbody/tr[2]/td[7]/div/input
+            if (SkillTrade == "Credit") //&& attributeValue == "grey remove circle large icon")
+            {
+                if (attributeValue == "grey remove circle large icon")
+                {
+                    boolflag = true;
+                }
+                else
+                {
+                    Console.WriteLine("FAIL: Manage Listings Skill Trade does not match expected value for Credit");
+                    test.Log(Status.Fail, "Manage Listings Skill Trade does not match expected value for Credit");
+                    boolflag = false;
+                }
+            }
 
+            if (SkillTrade != "Skill-exchange" && SkillTrade != "Credit")
+            {
+                Console.WriteLine("FAIL: Skill Trade input value '" + SkillTrade + "' is invalid");
+                test.Log(Status.Fail, "Skill Trade input value '" + SkillTrade + "' is invalid");
+                boolflag = false;
+            }
 
-            if (managelistingsmatchingflag == true)
+            if (boolflag == true)
             {
                 return true;
             }
@@ -222,6 +314,15 @@ namespace MVPSt_2023_Feb_Competition.Pages
                 return false;
             }
         }
+
+        // commented out until solution is found to identify on/off status of Active icon
+        //public bool CheckActiveOnManageListings(string Active)
+        //{
+            // how to check Active slider bar / checkbox to know if it is on or off / Active (blue) or Hidden (grey)
+            //    // XPaths for Active and Hidden, respectively
+            //    //*[@id="listing-management-section"]/div[2]/div[1]/div[1]/table/tbody/tr[1]/td[7]/div
+            //    //*[@id="listing-management-section"]/div[2]/div[1]/div[1]/table/tbody/tr[2]/td[7]/div/input
+        //}
 
         public void Edit1stListing()
         {

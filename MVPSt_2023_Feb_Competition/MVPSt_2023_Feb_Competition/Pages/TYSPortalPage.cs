@@ -75,6 +75,7 @@ namespace MVPSt_2023_Feb_Competition.Pages
             catch (Exception ex)
             {
                 test.Log(Status.Fail, "Failed to launch Trade Your Skills portal page");
+                //GrabScreenShot();
                 Assert.Fail("Failed to launch Trade Your Skills portal page", ex.Message);
             }
 

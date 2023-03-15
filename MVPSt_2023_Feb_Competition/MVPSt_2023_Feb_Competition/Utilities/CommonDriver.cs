@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Enumeration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using MVPSt_2023_Feb_Competition.Pages;
-using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using MVPSt_2023_Feb_Competition.Utilities;
 using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports;
-using System.IO;
 
 namespace MVPSt_2023_Feb_Competition.Utilities
 {
@@ -20,8 +11,12 @@ namespace MVPSt_2023_Feb_Competition.Utilities
     public class CommonDriver
     {
         // for Extent Reports
-        public static ExtentReports extentReportObj = null;
-        public static ExtentTest test = null;
+        public static ExtentReports? extentReportObj = null;
+        public static ExtentTest? test = null;
+
+        // variables used by Screenshot method
+        public static string ScreenShotPath = "C:\\Users\\User\\Documents\\MVP Studio Projects\\MVPSt_2023_Feb_Competition\\MVPSt_2023_Feb_Competition\\MVPSt_2023_Feb_Competition\\ScreenShots\\";
+        public static string? ScreenShotFilename;
 
         // Sign Out flag used by SignOut method to determine whether or not to attempt to SignOut
         private static bool signoutBool = false;
@@ -41,17 +36,14 @@ namespace MVPSt_2023_Feb_Competition.Utilities
         // converted variables from string to integer
         public static int sheetName2RowInt { get; set; }
         public static int sheetName3RowInt { get; set; }
-
-        //// for Extent Reports
-        //public static ExtentTest test;
-        //public static ExtentReports extent;
+        public string TestCaseID { get; private set; }
 
         [SetUp]
         public static void SetupActions()
         {
             Console.WriteLine("**Starting 'Trade Your Skills' portal script from CommonDriver");
 
-            // create the Extent Report
+            // create the Extent Report to capture validation results and any errors during the test run
             test = extentReportObj.CreateTest("DetermineAction").Info("**Starting 'Trade Your Skills' portal script from CommonDriver");
 
             // full path of file containing configuration details -- other spreadsheets
@@ -75,7 +67,6 @@ namespace MVPSt_2023_Feb_Competition.Utilities
             sheetName3Row = ExcelLib.ReadData(2, "TestDataFileSheetNameRow");
             
             // convert string sheetName3Row to integer
-            //Int32.TryParse(sheetName3Row, out int sheetName3RowInt);
             sheetName3RowInt = int.Parse(sheetName3Row);
 
             
@@ -107,8 +98,7 @@ namespace MVPSt_2023_Feb_Competition.Utilities
             // sign in and check returned boolean value to see if successful
             if (tysportalPageObj.SigninActions(sheetName2RowInt) == true)
             {
-                //Console.WriteLine("Successfully Signed into 'Trade Your Skills' portal");
-                //test.Log(Status.Info, "Successfully Signed into 'Trade Your Skills' portal");
+                // set variable to true for future use in TearDown
                 signoutBool = true;
             }
             else
@@ -116,16 +106,57 @@ namespace MVPSt_2023_Feb_Competition.Utilities
                 Console.WriteLine("FAIL: Failed to Sign into 'Trade Your Skills' portal");
                 Console.WriteLine("Closing browser and exiting program");
                 test.Log(Status.Fail, "Failed to Sign into 'Trade Your Skills' portal");
+                //GrabScreenShot("");
                 Cleanup();
+            }
+        }
+
+        // method to capture screenshot and insert screenshot's location into the log (Extent Report) ONLY when a Failure happens
+        public void GrabScreenShot(string TestCaseID)
+        {
+            //string ScreenShotFilename;
+            if (string.IsNullOrWhiteSpace(TestCaseID) == true) // the failure occured before datasheet could be read in Program.cs so just set to "Report"
+            {
+                ScreenShotFilename = "Report";
+            }
+            else
+            {
+                ScreenShotFilename = TestCaseID;
+            }
+
+            string img = SaveScreenShotClass.SaveScreenshot(driver, ScreenShotFilename);
+            test.Log(Status.Info, "Screenshot of failure: " + img);
+        }
+
+        public class SaveScreenShotClass
+        {
+            public static string SaveScreenshot(IWebDriver driver, string ScreenShotFileName)
+            {
+                var folderLocation = (ScreenShotPath);
+                
+                // if folderLocation does not exist, then create it
+                if (!System.IO.Directory.Exists(folderLocation))
+                {
+                    System.IO.Directory.CreateDirectory(folderLocation);
+                }
+                
+                var screenShot = ((ITakesScreenshot)driver).GetScreenshot();
+                var fileName = new StringBuilder(folderLocation);
+
+                fileName.Append(ScreenShotFileName);
+                fileName.Append(DateTime.Now.ToString("_dd-MM-yyyy_hhmss"));
+                fileName.Append(".jpeg");
+                //screenShot.SaveAsFile(fileName.ToString(), ScreenshotImageFormat.Jpeg);
+                screenShot.SaveAsFile(fileName.ToString(), ScreenshotImageFormat.Png);
+                return fileName.ToString();
             }
         }
 
         [OneTimeSetUp]
         public void ExtentStart()
         {
-            string reportPath = @"C:\Users\User\Documents\MVP Studio Projects\MVPSt_2023_Feb_Competition\MVPSt_2023_Feb_Competition\MVPSt_2023_Feb_Competition\ExtentReports\MVPSt_2023_Feb_Competition.html";
-            //var htmlReporter = new ExtentHtmlReporter(reportPath + DateTime.Now.ToString("_ddMMyyyy_hhmmtt") + ".html");
-            var htmlReporter = new ExtentHtmlReporter(reportPath);
+            string reportPath = @"C:\Users\User\Documents\MVP Studio Projects\MVPSt_2023_Feb_Competition\MVPSt_2023_Feb_Competition\MVPSt_2023_Feb_Competition\ExtentReports\MVPSt_2023_Feb_Competition";
+            var htmlReporter = new ExtentHtmlReporter(reportPath + DateTime.Now.ToString("_ddMMyyyy_hhmmtt") + ".html");
             extentReportObj = new ExtentReports();
             extentReportObj.AttachReporter(htmlReporter);
         }
@@ -134,14 +165,6 @@ namespace MVPSt_2023_Feb_Competition.Utilities
         public static void Cleanup()
         {
             Console.WriteLine("Made it into TearDown's Cleanup in CommonDriver");
-            //if (signoutBool == true)
-            //{
-            //    Console.WriteLine("signoutBool = true");
-            //}
-            //if (signoutBool == false)
-            //{
-            //    Console.WriteLine("signoutBool = false");
-            //}
 
             // define Pages and Page objects
             HomePage homePageObj;
@@ -151,23 +174,17 @@ namespace MVPSt_2023_Feb_Competition.Utilities
 
             if (signoutBool == true) // then attempt to Sign Out
             {
-                //if (homePageObj.SignOut() == true)
-                //{
-                //    Console.WriteLine("Successfully Signed out of 'Trade Your Skills' portal");
-                //    test.Log(Status.Info, "Successfully Signed out of 'Trade Your Skills' portal");
-                //}
-                //else
                 if (homePageObj.SignOut() == false)
                 {
                     Console.WriteLine("FAIL: Failed to Sign Out of 'Trade Your Skills' portal");
                     test.Log(Status.Fail, "Failed to Sign Out of 'Trade Your Skills' portal");
                 }
             }
+
             Console.WriteLine("**Exiting/Ending 'Trade Your Skills' portal script from CommonDriver");
             test.Log(Status.Info, "**Exiting/Ending 'Trade Your Skills' portal script from CommonDriver");
             
-            // close browser
-            // driver.Close(); is not listed in videos
+            // close browser -- driver.Close(); is not listed in videos
             //driver.Close();
             driver.Quit();
         }

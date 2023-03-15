@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Folder Include="ExcelData\" />
+    <Folder Include="ScreenShots\" />
   </ItemGroup>
 
   <ItemGroup>

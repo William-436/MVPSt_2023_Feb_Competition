@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using MVPSt_2023_Feb_Competition.Pages;
+﻿using MVPSt_2023_Feb_Competition.Pages;
 using MVPSt_2023_Feb_Competition.Utilities;
-using NUnit.Framework;
-using OpenQA.Selenium;
-//using OpenQA.Selenium.DevTools.V107.Runtime;
-using AventStack.ExtentReports.Reporter;
 using AventStack.ExtentReports;
 
 namespace MVPSt_2023_Feb_Competition.Test
@@ -19,7 +8,6 @@ namespace MVPSt_2023_Feb_Competition.Test
     public class TheDriver : CommonDriver
     //public class TheDriver
     {
-
         ManageListingsPage manageListingsPageObj;
 
         //[TestCase(1)] // headers
@@ -78,6 +66,8 @@ namespace MVPSt_2023_Feb_Competition.Test
         static string? ExpectedPopupMessage;
         static string? ExpectedFollowupPopupMessage;
 
+        public bool allvaluesonManageListings { get; private set; }
+
         [Test]
         //public void DetermineAction(int i)
         public void DetermineAction()
@@ -94,12 +84,13 @@ namespace MVPSt_2023_Feb_Competition.Test
             manageListingsPageObj = new ManageListingsPage();
 
             // Miscellaneous
-            string? returnedMessage;
+            //string? returnedMessage;
             bool doneyet;
             bool finishedadding;
             int NumberOfExistingListingsInt;
             //int numberofListingsbeforeAction;
             //int numberofListingsafterAction;
+            bool allvaluesonManageListings;
 
             // call method to read all rows of external data file into an internal table
             ExcelLib.PopulateIntoCollection(filePath3, sheetName3);
@@ -111,80 +102,7 @@ namespace MVPSt_2023_Feb_Competition.Test
             // -- by moving it above the [Setup] hook
             // and using int.Parse instead of int32.TryParse to set its value
             //
-
-
-
-            // try to call the method to read all of the internal table values into the variables
             GetRowOfTestData(sheetName3RowInt);
-
-            //// get test case ID which may or may not be used by this script
-            //string TestCaseID = ExcelLib.ReadData(sheetName3RowInt, "TestCaseID");
-
-            //// get number of existing listings (driving info) from internal, populated collection
-            //string NumberOfExistingListings = ExcelLib.ReadData(sheetName3RowInt, "NumberOfExistingListings");
-            ////string NumberOfExistingListings = ExcelLib.ReadData(2, "NumberOfExistingListings");
-
-            //// get action of test (driving info) from internal, populated collection
-            ////string ActionOfTest = ExcelLib.ReadData(sheetName3RowInt, "ActionOfTest");
-            //string ActionOfTest = ExcelLib.ReadData(sheetName3RowInt, "ActionOfTest");
-
-            //// removed ValidInvalid from spreadsheet -- it was returned
-            //// get valid/invalid (driving info) from internal, populated collection
-            //string ValidInvalid = ExcelLib.ReadData(sheetName3RowInt, "ValidInvalid");
-
-            //// get action button (driving info) from internal, populated collection
-            //string ActionButton = ExcelLib.ReadData(sheetName3RowInt, "ActionButton");
-
-            //// get followup action (driving info) from internal, populated collection
-            //string FollowupAction = ExcelLib.ReadData(sheetName3RowInt, "FollowupAction");
-
-            //// get title
-            //string Title = ExcelLib.ReadData(sheetName3RowInt, "Title");
-
-            //// get the rest of the test data for the Share Skill page
-            //string TitleError = ExcelLib.ReadData(sheetName3RowInt, "TitleError");
-            //string Description = ExcelLib.ReadData(sheetName3RowInt, "Description");
-            //string DescriptionError = ExcelLib.ReadData(sheetName3RowInt, "DescriptionError");
-            //string Category = ExcelLib.ReadData(sheetName3RowInt, "Category");
-            //string Subcategory = ExcelLib.ReadData(sheetName3RowInt, "Subcategory");
-            //string Tags = ExcelLib.ReadData(sheetName3RowInt, "Tags");
-            //string ServiceType = ExcelLib.ReadData(sheetName3RowInt, "ServiceType");
-            //string Location = ExcelLib.ReadData(sheetName3RowInt, "Location");
-            //string StartDate = ExcelLib.ReadData(sheetName3RowInt, "StartDate");
-            //string EndDate = ExcelLib.ReadData(sheetName3RowInt, "EndDate");
-            //string StartEndDateError = ExcelLib.ReadData(sheetName3RowInt, "StartEndDateError");
-            //string Sun = ExcelLib.ReadData(sheetName3RowInt, "Sun");
-            //string SunStartTime = ExcelLib.ReadData(sheetName3RowInt, "SunStartTime");
-            //string SunEndTime = ExcelLib.ReadData(sheetName3RowInt, "SunEndTime");
-            //string Mon = ExcelLib.ReadData(sheetName3RowInt, "Mon");
-            //string MonStartTime = ExcelLib.ReadData(sheetName3RowInt, "MonStartTime");
-            //string MonEndTime = ExcelLib.ReadData(sheetName3RowInt, "MonEndTime");
-            //string Tue = ExcelLib.ReadData(sheetName3RowInt, "Tue");
-            //string TueStartTime = ExcelLib.ReadData(sheetName3RowInt, "TueStartTime");
-            //string TueEndTime = ExcelLib.ReadData(sheetName3RowInt, "TueEndTime");
-            //string Wed = ExcelLib.ReadData(sheetName3RowInt, "Wed");
-            //string WedStartTime = ExcelLib.ReadData(sheetName3RowInt, "WedStartTime");
-            //string WedEndTime = ExcelLib.ReadData(sheetName3RowInt, "WedEndTime");
-            //string Thu = ExcelLib.ReadData(sheetName3RowInt, "Thu");
-            //string ThuStartTime = ExcelLib.ReadData(sheetName3RowInt, "ThuStartTime");
-            //string ThuEndTime = ExcelLib.ReadData(sheetName3RowInt, "ThuEndTime");
-            //string Fri = ExcelLib.ReadData(sheetName3RowInt, "Fri");
-            //string FriStartTime = ExcelLib.ReadData(sheetName3RowInt, "FriStartTime");
-            //string FriEndTime = ExcelLib.ReadData(sheetName3RowInt, "FriEndTime");
-            //string Sat = ExcelLib.ReadData(sheetName3RowInt, "Sat");
-            //string SatStartTime = ExcelLib.ReadData(sheetName3RowInt, "SatStartTime");
-            //string SatEndTime = ExcelLib.ReadData(sheetName3RowInt, "SatEndTime");
-            //string SkillTrade = ExcelLib.ReadData(sheetName3RowInt, "SkillTrade");
-            //string SkillExchange = ExcelLib.ReadData(sheetName3RowInt, "SkillExchange");
-            //string Credit = ExcelLib.ReadData(sheetName3RowInt, "Credit");
-            //string WorkSamples = ExcelLib.ReadData(sheetName3RowInt, "WorkSamples");
-            //string Active = ExcelLib.ReadData(sheetName3RowInt, "Active");
-            //string ExpectedPopupMessage = ExcelLib.ReadData(sheetName3RowInt, "ExpectedPopupMessage");
-            //string ExpectedFollowupPopupMessage = ExcelLib.ReadData(sheetName3RowInt, "ExpectedFollowupPopupMessage");
-
-            //// for Extent Reports
-            //test = null;
-            //test = extent.CreateTest(TestCaseID).Info("Add Share Skill");
 
             // convert string parameter to integer variable
             NumberOfExistingListingsInt = Int32.Parse(NumberOfExistingListings);
@@ -207,20 +125,11 @@ namespace MVPSt_2023_Feb_Competition.Test
             if (ActionOfTest == "AddShareSkillValid")
             {
                 homePageObj.NavigateToShareSkill();
-                //manageListingsPageObj.NavigateToShareSkill();
-                //if (shareSkillPageObj.CreateShareSkill(ActionButton, FollowupAction, Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage) == false)
                 //returnedMessage = shareSkillPageObj.CreateShareSkill(ActionButton, FollowupAction, Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
-                //finishedadding = false;
-                //do
-                //{
-                shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
 
-                ////////// should there be a check of the ActionButton = "Save"?
-                /// Yes, if Cancel add share skill test cases use this same path via an OR condition in the ActionOfTest condition
-                /// No, if Cancel add share skill test cases use a different path for its different ActionOfTest value
+                //shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
+                AddAllShareSkillData(ActionOfTest);
 
-
-                //Thread.Sleep(3000);
                 // verify number of listings on Manage Listings page has increased by 1
                 //numberofListingsafterAction = manageListingsPageObj.CountAllListings();
                 //Console.WriteLine("numberofListingsafterAction = " + numberofListingsafterAction);
@@ -235,48 +144,17 @@ namespace MVPSt_2023_Feb_Competition.Test
                 //else
                 //{
                 //    Console.WriteLine("FAIL: Number of actual listings '" + numberofListingsafterAction + "' do(does) not match expected number '" + (NumberOfExistingListingsInt + 1) + "'");
+                //    test.Log(Status.Fail, "Number of actual listings '" + numberofListingsafterAction + "' do(does) not match expected number '" + (NumberOfExistingListingsInt + 1) + "'");
                 //    Assert.Fail("Number of actual listings '" + numberofListingsafterAction + "' do(does) not match expected number '" + (NumberOfExistingListingsInt + 1) + "'");
                 //}
 
-                // FollowupAction is only relevant for multiple rows of invalid data
-                //    if (FollowupAction == "Yes")
-                //    {
-                //        // add 1 to the row number and read the next row of test data
-                //        sheetName3RowInt++;
-                //        GetRowOfTestData(sheetName3RowInt);
-                //    }
-                //    else
-                //    {
-                //        finishedadding = true;
-                //    }
-                //}
-                //while (finishedadding = false);
-
-                //shareSkillPageObj.CreateShareSkill(ValidInvalid, ActionButton, FollowupAction, Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
-                //if (ActionButton == "Save") // must also consider ValidInvalid because Save with invalid data is a valid test -- removed from spreadsheet, combined with ActionOfTest
-                //{
-                //if (returnedMessage != ExpectedPopupMessage)
-                //{
-                //    Console.WriteLine("Actual message '" + returnedMessage + "' did not match expected message '" + ExpectedPopupMessage + "' so exiting program from Program.cs");
-                //    //Cleanup();
-                //}
-
-                // what page is the user on? Look for the Save button -- if found then still on the Share Skill page; otherwise, on Manage Listings page
-
-                //if (saveButton
-                //{
-
-                //}
-                //else
-                //{
-                //    // call method to compare actual results on Manage Listings page, including verifying total number of listings (rows in table)
-                //    // and return true if all values match or false if 1 or more values do not match
-                //    // most recently created listing is the top listing on the Manage Listings page
-                //    Thread.Sleep(6000);
-
-                if (ValidateManageListingsValues(NumberOfExistingListingsInt, Category, Title, Description, ServiceType, SkillTrade, Active) == true)
-                //if (manageListingsPageObj.CompareManageListingsValues(NumberOfExistingListings, Category, Title, Description, ServiceType, SkillTrade, Active) == true)
-                {
+                // call method to compare actual results on Manage Listings page
+                // and return true if all values match or false if 1 or more values do not match
+                // most recently created listing is the top listing on the Manage Listings page
+                // use numberofListingsbeforeAction as 1st parm when count listings method is working
+                //if (ValidateManageListingsValues(NumberOfExistingListingsInt, ActionOfTest, ValidInvalid, Category, Title, Description, ServiceType, SkillTrade, Active) == true)
+                if (ValidateManageListingsValues(Category, Title, Description, ServiceType, SkillTrade, Active) == true)
+                    {
                     Console.WriteLine("Pass: Values on Manage Listings page match expected values");
                     test.Log(Status.Pass, "Values on Manage Listings page match expected values");
 
@@ -291,6 +169,7 @@ namespace MVPSt_2023_Feb_Competition.Test
                     {
                         Console.WriteLine("FAIL: 1 or more values on Share Skill page do not match expected values");
                         test.Log(Status.Fail, "1 or more values on Share Skill page do not match expected values");
+                        GrabScreenShot(TestCaseID);
                         Assert.Fail("1 or more values on Share Skill page do not match expected values");
                     }
                 }
@@ -298,60 +177,26 @@ namespace MVPSt_2023_Feb_Competition.Test
                 {
                     Console.WriteLine("FAIL: 1 or more values on Manage Listings page do not match expected values");
                     test.Log(Status.Fail, "1 or more values on Manage Listings page do not match expected values");
+                    GrabScreenShot(TestCaseID);
                     Assert.Fail("1 or more values on Manage Listings page do not match expected values");
                 }
-                //{
-                    //// call method to compare actual results from the Share Skills page by editing the listing that was created in this test (top of listings)
-                    //manageListingsPageObj.Edit1stListing();
-                    //if (shareSkillPageObj.CompareShareSkillValues(Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active) == true)
-                    //{
-                    //    Console.WriteLine("Values on Share Skill page match expected values");
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("FAIL: 1 or more values on Share Skill page do not match expected values");
-                    //    //Cleanup();
-                    //}
-                //}
             }
-            //else
-            //{
-            //    if (ActionButton == "Cancel")
-            //    {
-            //        // user returns to page they were on when the Share Skill button was pressed -- in our case, Profile/Home
-            //        // verify # of listings remains unchanged by capturing # of rows of listings on the Manage Listings page
 
-            //    }
-            //}
             // do these 2 conditions need to be brought inside the "AddShareSkill" condition or can they be made generic to remain outside the condition?
             // must consider values of Action Button:
             // -- if Cancel, then # of listings must remain the same
-            // -- if Save, and ValidInvalid = Valid, then # of listings must be 1 more than Number of Existing Listings
+            // -- if Save, and ValidInvalid = Valid, then # of listings must be 1 more than Number of Existing Listings parameter OR 1 more than the 'pre-action' listing count
             // -- if Save, and ValidInvalid = Invalid, then # of listings must remain the same
-
-            //if (NumberOfExistingListings == "1")
-            //{
-            //    // get # of rows on Manage Listings page and make sure it is "2", otherwise; throw an error
-            //}
-
-            //if (ValidInvalid == "Valid")
-            //{
-            //    // make sure Action Button = 
-            //}
-
-            // perform the Teardown steps of signing out and closing and quitting the driver
-            //Cleanup();
 
             if (ActionOfTest == "AddShareSkillInvalid")
             {
                 homePageObj.NavigateToShareSkill();
-                //manageListingsPageObj.NavigateToShareSkill();
-                //returnedMessage = shareSkillPageObj.CreateShareSkill(ActionButton, FollowupAction, Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
                 finishedadding = false;
-                //test.Log(AventStack.ExtentReports.Status.Info, "Go to Share Skill page to add Invalid data");
+
                 do
                 {
-                    shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
+                    //shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
+                    AddAllShareSkillData(ActionOfTest);
                     if (FollowupAction == "Yes")
                     {
                         // add 1 to the row number and read the next row of test data
@@ -365,10 +210,11 @@ namespace MVPSt_2023_Feb_Competition.Test
                 }
                 while (finishedadding == false);
 
-                // call a method to click the Cancel button on the Share Skill page to load the Manage Listings page
+                // call a method to click the Cancel button on the Share Skill page because invalid data will not be allowed to be saved
                 shareSkillPageObj.ClickTheCancelButton();
 
                 // verify number of listings on Manage Listings page remains unchanged
+                //homePageObj.NavigateToManageListings();
                 //numberofListingsafterAction = manageListingsPageObj.CountAllListings();
 
                 //if (numberofListingsafterAction != NumberOfExistingListingsInt)
@@ -382,19 +228,20 @@ namespace MVPSt_2023_Feb_Competition.Test
             {
                 //manageListingsPageObj.NavigateToShareSkill();
                 homePageObj.NavigateToManageListings();
-                // even presuming the listing at top of the Manage Listings page is the listing to edit
-                // still verify the category, title, description, and service type match before editing
+                // since duplicate listings are permitted, program will not verify the category, title, description, and service type match before editing
+                // edit listing at top of page 1 on the Manage Listings page
                 manageListingsPageObj.Edit1stListing();
-                shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
+                //shareSkillPageObj.CreateShareSkill(ActionOfTest, ValidInvalid, ActionButton, FollowupAction, Title, TitleError, Description, DescriptionError, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, StartEndDateError, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active, ExpectedPopupMessage, ExpectedFollowupPopupMessage);
+                AddAllShareSkillData(ActionOfTest);
 
-                if (ValidateManageListingsValues(NumberOfExistingListingsInt, Category, Title, Description, ServiceType, SkillTrade, Active) == true)
+                if (ValidateManageListingsValues(Category, Title, Description, ServiceType, SkillTrade, Active) == true)
                 {
                     Console.WriteLine("Pass: Values on Manage Listings page match expected, edited values");
                     test.Log(Status.Pass, "Values on Manage Listings page match expected, edited values");
 
                     // call method to compare actual results from the Share Skills page by editing the listing that was edited in this test (top of listings)
                     manageListingsPageObj.Edit1stListing();
-        // need a variation to CompareShareSkillValues because existed Tags were edited !!! -- NO!! Validate Tags only when ActionOfTest is not = EditShareSkillValid
+
                     if (shareSkillPageObj.CompareShareSkillValues(ActionOfTest, Title, Description, Category, Subcategory, Tags, ServiceType, Location, StartDate, EndDate, Sun, SunStartTime, SunEndTime, Mon, MonStartTime, MonEndTime, Tue, TueStartTime, TueEndTime, Wed, WedStartTime, WedEndTime, Thu, ThuStartTime, ThuEndTime, Fri, FriStartTime, FriEndTime, Sat, SatStartTime, SatEndTime, SkillTrade, SkillExchange, Credit, WorkSamples, Active) == true)
                     {
                         Console.WriteLine("Pass: Values on Share Skill page match expected, edited values");
@@ -404,6 +251,7 @@ namespace MVPSt_2023_Feb_Competition.Test
                     {
                         Console.WriteLine("FAIL: 1 or more values on Share Skill page do not match expected, edited values");
                         test.Log(Status.Fail, "1 or more values on Share Skill page do not match expected, edited values");
+                        GrabScreenShot(TestCaseID);
                         Assert.Fail("1 or more values on Share Skill page do not match expected, edited values");
                     }
                 }
@@ -411,6 +259,7 @@ namespace MVPSt_2023_Feb_Competition.Test
                 {
                     Console.WriteLine("FAIL: 1 or more values on Manage Listings page do not match expected, edited values");
                     test.Log(Status.Fail, "1 or more values on Manage Listings page do not match expected, edited values");
+                    GrabScreenShot(TestCaseID);
                     Assert.Fail("1 or more values on Manage Listings page do not match expected, edited values");
                 }
             }
@@ -427,7 +276,6 @@ namespace MVPSt_2023_Feb_Competition.Test
             // get action (driving info) from internal, populated collection
             ActionOfTest = ExcelLib.ReadData(newRow, "ActionOfTest");
 
-            // removed ValidInvalid from spreadsheet -- it was returned
             // get valid/invalid (driving info) from internal, populated collection
             ValidInvalid = ExcelLib.ReadData(newRow, "ValidInvalid");
 
@@ -482,16 +330,111 @@ namespace MVPSt_2023_Feb_Competition.Test
             ExpectedFollowupPopupMessage = ExcelLib.ReadData(newRow, "ExpectedFollowupPopupMessage");
         }
 
-        public bool ValidateManageListingsValues(int NumberOfExistingListingsInt, string Category, string Title, string Description, string ServiceType, string SkillTrade, string Active)
+        public void AddAllShareSkillData(string ActionOfTest)
         {
-            if (manageListingsPageObj.CompareManageListingsValues(NumberOfExistingListingsInt, Category, Title, Description, ServiceType, SkillTrade, Active) == true)
+            // define Pages and Page objects
+            ShareSkillPage shareSkillPageObj;
+
+            // initialize Page objects
+            shareSkillPageObj = new ShareSkillPage();
+
+            if (ActionOfTest == "AddShareSkillValid")
             {
-                //Console.WriteLine("Pass: Values on Manage Listings page match expected values");
+                test.Log(Status.Info, "Attempting to add a listing on the Share Skill page using valid data");
+            }
+
+            if (ActionOfTest == "AddShareSkillInvalid")
+            {
+                test.Log(Status.Info, "Attempting to add a listing on the Share Skill page using Invalid data");
+            }
+
+            if (ActionOfTest == "EditShareSkillValid")
+            {
+                test.Log(Status.Info, "Attempting to edit a listing on the Share Skill page using valid data");
+            }
+
+            shareSkillPageObj.AddTitle(ValidInvalid, Title);
+            shareSkillPageObj.AddDescription(ValidInvalid, Description);
+            shareSkillPageObj.AddCategory(Category);
+            shareSkillPageObj.AddSubcategory(Subcategory);
+            shareSkillPageObj.AddTags(ActionOfTest, Tags);
+            shareSkillPageObj.AddServiceType(ServiceType);
+            shareSkillPageObj.AddLocation(Location);
+            shareSkillPageObj.AddStartDate(StartDate);
+            shareSkillPageObj.AddEndDate(EndDate);
+            shareSkillPageObj.AddSunday(Sun);
+            shareSkillPageObj.AddSundayStartTime(SunStartTime);
+            shareSkillPageObj.AddSundayEndTime(SunEndTime);
+            shareSkillPageObj.AddMonday(Mon);
+            shareSkillPageObj.AddMondayStartTime(MonStartTime);
+            shareSkillPageObj.AddMondayEndTime(MonEndTime);
+            shareSkillPageObj.AddTuesday(Tue);
+            shareSkillPageObj.AddTuesdayStartTime(TueStartTime);
+            shareSkillPageObj.AddTuesdayEndTime(TueEndTime);
+            shareSkillPageObj.AddWednesday(Wed);
+            shareSkillPageObj.AddWednesdayStartTime(WedStartTime);
+            shareSkillPageObj.AddWednesdayEndTime(WedEndTime);
+            shareSkillPageObj.AddThursday(Thu);
+            shareSkillPageObj.AddThursdayStartTime(ThuStartTime);
+            shareSkillPageObj.AddThursdayEndTime(ThuEndTime);
+            shareSkillPageObj.AddFriday(Fri);
+            shareSkillPageObj.AddFridayStartTime(FriStartTime);
+            shareSkillPageObj.AddFridayEndTime(FriEndTime);
+            shareSkillPageObj.AddSaturday(Sat);
+            shareSkillPageObj.AddSaturdayStartTime(SatStartTime);
+            shareSkillPageObj.AddSaturdayEndTime(SatEndTime);
+            shareSkillPageObj.AddSkillTrade(SkillTrade, SkillExchange, Credit);
+            shareSkillPageObj.AddWorkSamples(WorkSamples);
+            shareSkillPageObj.AddActive(Active);
+
+            shareSkillPageObj.ProcessTheActionButton(ValidInvalid, ActionButton, TitleError, DescriptionError, StartEndDateError);
+        }
+
+        public bool ValidateManageListingsValues(string Category, string Title, string Description, string ServiceType, string SkillTrade, string Active)
+        {
+            test.Log(Status.Info, "Beginning comparisons of only the top row/listing on Manage Listings page");
+
+            allvaluesonManageListings = true;
+            
+            if (manageListingsPageObj.CheckCategoryOnManageListings(Category) == false)
+            {
+                allvaluesonManageListings = false;
+            }
+
+            if (manageListingsPageObj.CheckTitleOnManageListings(Title) == false)
+            { 
+                allvaluesonManageListings = false;
+            }
+
+            if (manageListingsPageObj.CheckDescriptionOnManageListings(Description) == false)
+            {
+                allvaluesonManageListings = false;
+            }
+
+            if (manageListingsPageObj.CheckServiceTypeOnManageListings(ServiceType) == false)
+            { 
+                allvaluesonManageListings = false;
+            }
+
+            if (manageListingsPageObj.CheckSkillTradeOnManageListings(SkillTrade) == false)
+            {
+                allvaluesonManageListings = false;
+            }
+
+            //if (manageListingsPageObj.CheckActiveOnManageListings(Active) == false)
+            //{
+            //    allvaluesonManageListings = false;
+            //}
+
+
+            if (allvaluesonManageListings == true)
+            {
+                /// force false to generate an error and screenshot
+                //return false;
                 return true;
             }
             else
             {
-                //Console.WriteLine("FAIL: 1 or more values on Manage Listings page do not match expected values");
                 return false;
             }
         }
